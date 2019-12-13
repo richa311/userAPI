@@ -1,24 +1,33 @@
 package com.bemychef.users.user.service.impl;
 
-import com.bemychef.users.user.dao.UserDao;
-import com.bemychef.users.user.dao.UserRepository;
-import com.bemychef.users.user.model.User;
-import com.bemychef.users.user.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import javax.ws.rs.core.Response;
 import java.util.List;
 import java.util.Optional;
 
-@Service
+import javax.ws.rs.core.Response;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.bemychef.users.user.binder.UserBinder;
+import com.bemychef.users.user.dao.UserDao;
+import com.bemychef.users.user.dao.UserRepository;
+import com.bemychef.users.user.model.User;
+import com.bemychef.users.user.model.dto.UserDTO;
+import com.bemychef.users.user.service.UserService;
+
+@Service
 public class UserServiceImpl implements UserService {
     @Autowired
     private UserDao userDao;
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserBinder userBinder;
 
+    /**
+     * Saves user
+     * @param user object
+     */
     public User register(User user) {
         return userRepository.save(user);
     }
@@ -30,7 +39,7 @@ public class UserServiceImpl implements UserService {
      */
     public int validateUserByEmail(String emailId) {
         if (checkIfUserWithGivenEmailExists(emailId)) {
-            return Response.Status.OK.getStatusCode();
+            return Response.Status.FOUND.getStatusCode();
         } else
             return Response.Status.NOT_FOUND.getStatusCode();
     }
@@ -58,12 +67,12 @@ public class UserServiceImpl implements UserService {
      * @return gets user by it's userId
      */
     @Override
-    public User getUserDetailsById(Long userId) {
+    public UserDTO getUserDetailsById(Long userId) {
         Optional<User> userOptional = userRepository.findById(userId);
         if(userOptional.isPresent())
-            return userOptional.get();
+            return userBinder.bindUserToUserDTO(userOptional.get());
         else
-            return userOptional.orElseThrow(IllegalArgumentException::new);
+        	return null;
     }
 
     /**
@@ -73,9 +82,14 @@ public class UserServiceImpl implements UserService {
      * @return true/false : if email is already present/not present
      */
     private boolean checkIfUserWithGivenEmailExists(String emailId) {
-        if(userDao.checkIfEmailAlreadyExists(emailId) == 0)
-            return false;
-        else
-            return true;
+       return userDao.checkIfEmailAlreadyExists(emailId) == 0;
     }
+
+	public UserBinder getUserBinder() {
+		return userBinder;
+	}
+
+	public void setUserBinder(UserBinder userBinder) {
+		this.userBinder = userBinder;
+	}
 }

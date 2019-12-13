@@ -16,7 +16,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public long checkIfEmailAlreadyExists(String emailId) {
-        Query query = em.createQuery("SELECT ID FROM User u WHERE u.emailId = :emailId");
+        Query query = em.createQuery("SELECT u FROM User u WHERE u.emailId = :emailId");
         query.setParameter("emailId", emailId);
         return query.getResultStream().count();
     }

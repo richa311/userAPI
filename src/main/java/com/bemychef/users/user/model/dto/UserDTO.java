@@ -1,24 +1,23 @@
-package com.bemychef.users.user.model;
+package com.bemychef.users.user.model.dto;
 
-import javax.persistence.*;
 import java.sql.Timestamp;
 
-/**
- * Registration class for users
- */
-@Entity
-@Table(name="UserDetail")
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+import com.bemychef.users.user.model.Status;
+
+import javax.validation.constraints.NotNull;
+
+@NotNull
+public class UserDTO {
+
     private long id;
+    @NotNull
     private String firstName;
     private String middleName;
     private String lastName;
+    @NotNull
     private char[] password;
     private Long contactNumber;
     private String emailId;
-    @Enumerated(EnumType.STRING)
     private Status status;
     private Timestamp createdOn;
     private String createdBy;
@@ -120,4 +119,5 @@ public class User {
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
+
 }

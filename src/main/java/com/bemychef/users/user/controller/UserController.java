@@ -1,6 +1,8 @@
 package com.bemychef.users.user.controller;
 
+import com.bemychef.users.user.binder.UserBinder;
 import com.bemychef.users.user.model.User;
+import com.bemychef.users.user.model.dto.UserDTO;
 import com.bemychef.users.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +19,19 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    
+    @Autowired
+    private UserBinder userBinder;
 
     @PostMapping(path = "/user",consumes = "application/json")
-    public int registerUser(@RequestBody User user) {
-         userService.register(user);
-         return Response.Status.CREATED.getStatusCode();
+    public int registerUser(@RequestBody UserDTO userDTO) {
+        if(userService.validateUserByEmail(userDTO.getEmailId()) != Response.Status.FOUND.getStatusCode()){
+            return Response.Status.FOUND.getStatusCode();
+        }else {
+            User user = userBinder.bindUserDTOToUser(userDTO);
+            userService.register(user);
+            return Response.Status.CREATED.getStatusCode();
+        }
     }
 
     @PostMapping(path = "/user/validate", consumes = "application/json", produces = "application/json")
@@ -35,7 +45,7 @@ public class UserController {
     }
 
     @GetMapping(path = "/users/{userId}", consumes = "application/json", produces = "application/json")
-    public User getUserDetailsById(@PathVariable Long userId){
+    public UserDTO getUserDetailsById(@PathVariable Long userId){
         return userService.getUserDetailsById(userId);
     }
 
@@ -46,4 +56,12 @@ public class UserController {
     public void setUserService(UserService userService) {
         this.userService = userService;
     }
+
+	public UserBinder getUserBinder() {
+		return userBinder;
+	}
+
+	public void setUserBinder(UserBinder userBinder) {
+		this.userBinder = userBinder;
+	}
 }

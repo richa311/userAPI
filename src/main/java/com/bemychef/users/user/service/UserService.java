@@ -1,9 +1,11 @@
 package com.bemychef.users.user.service;
 
-import com.bemychef.users.user.model.User;
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import com.bemychef.users.user.model.User;
+import com.bemychef.users.user.model.dto.UserDTO;
 
 /**
  * Service class for registration
@@ -44,5 +46,5 @@ public interface UserService {
      * @param userId
      * @return user by userId
      */
-    User getUserDetailsById(Long userId);
+    UserDTO getUserDetailsById(Long userId);
 }
