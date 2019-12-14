@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import javax.ws.rs.core.Response;
 
+import com.bemychef.users.user.model.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,11 +47,12 @@ public class UserServiceImpl implements UserService {
 
     /**
      * updates user details
-     * @param user
+     * @param userDTO
      */
     @Override
-    public void updateDetails(User user) {
-        userDao.updateRegistrationDetails(user);
+    public void updateDetails(Long userId, UserDTO userDTO) {
+        User user = userBinder.bindUserDTOToUser(userDTO);
+        userDao.updateUserDetails(user);
     }
 
     /**
@@ -73,6 +75,15 @@ public class UserServiceImpl implements UserService {
             return userBinder.bindUserToUserDTO(userOptional.get());
         else
         	return null;
+    }
+
+    @Override
+    public Status getUserStatus(Long userId) {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent()){
+            return optionalUser.get().getStatus();
+        }else
+            return null;
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.bemychef.users.user.controller;
 
 import com.bemychef.users.user.binder.UserBinder;
+import com.bemychef.users.user.model.Status;
 import com.bemychef.users.user.model.User;
 import com.bemychef.users.user.model.dto.UserDTO;
 import com.bemychef.users.user.service.UserService;
@@ -47,6 +48,15 @@ public class UserController {
     @GetMapping(path = "/users/{userId}", consumes = "application/json", produces = "application/json")
     public UserDTO getUserDetailsById(@PathVariable Long userId){
         return userService.getUserDetailsById(userId);
+    }
+    @GetMapping(path = "/status/{userId}", produces = "application/json")
+    public Status getUserStatus(@PathVariable Long userId){
+        return userService.getUserStatus(userId);
+    }
+
+    @PostMapping(path = "users/{userId}")
+    public void updateUserDetails(@PathVariable Long userId, @RequestBody UserDTO userDTO){
+        userService.updateDetails(userId, userDTO);
     }
 
     public UserService getUserService() {

@@ -1,7 +1,11 @@
 package com.bemychef.users.user.model;
 
+import com.bemychef.users.address.model.Address;
+import com.bemychef.users.device.model.Device;
+
 import javax.persistence.*;
 import java.sql.Timestamp;
+import java.util.Set;
 
 /**
  * Registration class for users
@@ -24,6 +28,11 @@ public class User {
     private String createdBy;
     private Timestamp modifiedOn;
     private String modifiedBy;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id")
+    private Set<Device> devices;
+    @Embedded
+    private Address addresses;
 
     public String getFirstName() {
         return firstName;
@@ -119,5 +128,21 @@ public class User {
 
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
+    }
+
+    public Set<Device> getDevices() {
+        return devices;
+    }
+
+    public void setDevices(Set<Device> devices) {
+        this.devices = devices;
+    }
+
+    public Address getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(Address addresses) {
+        this.addresses = addresses;
     }
 }

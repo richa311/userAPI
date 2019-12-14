@@ -1,9 +1,15 @@
 package com.bemychef.users.user.model.dto;
 
 import java.sql.Timestamp;
+import java.util.Set;
 
+import com.bemychef.users.address.model.Address;
+import com.bemychef.users.device.model.Device;
 import com.bemychef.users.user.model.Status;
 
+import javax.persistence.CascadeType;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 @NotNull
@@ -23,6 +29,12 @@ public class UserDTO {
     private String createdBy;
     private Timestamp modifiedOn;
     private String modifiedBy;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id")
+    private Set<Device> devices;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "id")
+    private Set<Address> addresses;
 
     public String getFirstName() {
         return firstName;
@@ -119,5 +131,23 @@ public class UserDTO {
     public void setModifiedBy(String modifiedBy) {
         this.modifiedBy = modifiedBy;
     }
+
+
+    public Set<Device> getDevices() {
+        return devices;
+    }
+
+    public void setDevices(Set<Device> devices) {
+        this.devices = devices;
+    }
+
+    public Set<Address> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(Set<Address> addresses) {
+        this.addresses = addresses;
+    }
+
 
 }

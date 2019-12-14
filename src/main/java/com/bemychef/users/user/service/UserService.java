@@ -2,6 +2,7 @@ package com.bemychef.users.user.service;
 
 import java.util.List;
 
+import com.bemychef.users.user.model.Status;
 import org.springframework.stereotype.Service;
 
 import com.bemychef.users.user.model.User;
@@ -33,7 +34,7 @@ public interface UserService {
      *
      * @param user
      */
-    void updateDetails(User user);
+    void updateDetails(Long userId, UserDTO userDTO);
 
     /**
      *
@@ -47,4 +48,6 @@ public interface UserService {
      * @return user by userId
      */
     UserDTO getUserDetailsById(Long userId);
+
+    Status getUserStatus(Long userId);
 }

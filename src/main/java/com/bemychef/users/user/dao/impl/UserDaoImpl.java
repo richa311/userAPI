@@ -1,6 +1,7 @@
 package com.bemychef.users.user.dao.impl;
 
 import com.bemychef.users.user.dao.UserDao;
+import com.bemychef.users.user.model.Status;
 import com.bemychef.users.user.model.User;
 
 import javax.inject.Named;
@@ -38,10 +39,5 @@ public class UserDaoImpl implements UserDao {
         query.setParameter("modifiedBy", user.getModifiedBy());
 
         query.executeUpdate();
-    }
-
-    @Override
-    public void updateRegistrationDetails(User user) {
-
     }
 }
