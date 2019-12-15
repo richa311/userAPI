@@ -1,5 +1,7 @@
 package com.bemychef.users.user.binder;
 
+import java.util.Arrays;
+
 import javax.inject.Named;
 
 import com.bemychef.users.user.model.User;
@@ -20,7 +22,7 @@ public class UserBinder {
 		user.setId(userDTO.getId());
 		user.setModifiedBy(userDTO.getModifiedBy());
 		user.setModifiedOn(userDTO.getModifiedOn());
-		user.setPassword(userDTO.getPassword());
+		user.setPassword(Arrays.toString(userDTO.getPassword()));
 		user.setStatus(userDTO.getStatus());
 		
 		return user;
@@ -38,7 +40,7 @@ public class UserBinder {
 		userDTO.setId(user.getId());
 		userDTO.setModifiedBy(user.getModifiedBy());
 		userDTO.setModifiedOn(user.getModifiedOn());
-		userDTO.setPassword(user.getPassword());
+		userDTO.setPassword(user.getPassword().toCharArray());
 		userDTO.setStatus(user.getStatus());
 		
 		return userDTO;
