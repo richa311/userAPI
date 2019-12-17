@@ -125,6 +125,17 @@ public class UserServiceImpl implements UserService {
 		return userDao.checkIfEmailAlreadyExists(emailId) == 0;
 	}
 
+	@Override
+	public String getEmailIdByUserId(long id) {
+		Optional<User> optionalUser = userRepository.findById(id);
+		if(optionalUser.isPresent()) {
+			return optionalUser.get().getEmailId();
+		}else {
+			return null;
+		}
+		
+	}
+	
 	public UserBinder getUserBinder() {
 		return userBinder;
 	}

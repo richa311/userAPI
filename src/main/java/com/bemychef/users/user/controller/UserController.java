@@ -2,6 +2,7 @@ package com.bemychef.users.user.controller;
 
 import java.util.List;
 
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bemychef.users.user.binder.UserBinder;
@@ -17,6 +19,7 @@ import com.bemychef.users.user.model.Status;
 import com.bemychef.users.user.model.User;
 import com.bemychef.users.user.model.dto.UserDTO;
 import com.bemychef.users.user.service.UserService;
+import com.bemychef.users.useraccount.service.ConfirmUserService;
 
 /**
  * user registration controller, for routing the APIs
@@ -30,6 +33,9 @@ public class UserController {
 
 	@Autowired
 	private UserBinder userBinder;
+	
+	@Autowired
+	private ConfirmUserService confirmUserService;
 
 	@PostMapping(path = "/user", consumes = "application/json")
 	public int registerUser(@RequestBody UserDTO userDTO) {
@@ -38,6 +44,7 @@ public class UserController {
 		} else {
 			User user = userBinder.bindUserDTOToUser(userDTO);
 			userService.register(user);
+			confirmUserService.confirmUser(user);
 			return Response.Status.CREATED.getStatusCode();
 		}
 	}
@@ -76,6 +83,11 @@ public class UserController {
 	@PostMapping(path = "users/{userId}")
 	public void updateUserDetails(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
 		userService.updateDetails(userId, userDTO);
+	}
+	
+	@GetMapping(path = "/confirm-account")
+	public int confirmUserAccount(@RequestParam("token") String confirmationToken) {
+		return confirmUserService.verifyUserByToken(confirmationToken);
 	}
 
 	public UserService getUserService() {

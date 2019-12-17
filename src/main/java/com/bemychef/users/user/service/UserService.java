@@ -49,7 +49,24 @@ public interface UserService {
 	 */
 	UserDTO getUserDetailsById(Long userId);
 
+	/**
+	 * gets user's status by userId
+	 * @param userId
+	 * @return
+	 */
 	Status getUserStatus(Long userId);
 
+	/**
+	 * updates user's status by userId
+	 * @param userId
+	 * @param status
+	 * @return
+	 */
 	boolean updateStatusByUserId(Long userId, String status);
+
+	/**
+	 * gets email id by user id
+	 * @param id
+	 */
+	String getEmailIdByUserId(long id);
 }
