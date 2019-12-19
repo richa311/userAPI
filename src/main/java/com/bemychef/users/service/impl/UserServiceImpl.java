@@ -19,6 +19,7 @@ import com.bemychef.users.model.Status;
 import com.bemychef.users.model.User;
 import com.bemychef.users.dto.UserDTO;
 import com.bemychef.users.service.UserService;
+import com.bemychef.users.util.PropertiesUtil;
 
 import javax.ws.rs.core.Response;
 
@@ -32,8 +33,12 @@ public class UserServiceImpl implements UserService {
 	private UserBinder userBinder;
 	@Autowired
 	private ConfirmUserService confirmUserService;
+	@Autowired
+	private PropertiesUtil propertiesUtil;
 
 	private static Logger logger = Logger.getLogger(UserServiceImpl.class);
+	private static final String CHEF_USER_CONTACT_ADMIN = "chef.user.contact.admin";
+	private static final String CHEF_USER_EMAIL_EXIST = "chef.user.email.exist";
 
 	private User register(User user) {
 		logger.debug("Register users method starts..");
@@ -71,7 +76,7 @@ public class UserServiceImpl implements UserService {
 			userDao.updateUserDetails(user);
 		} catch (Exception ex) {
 			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					"Some error occurred, Please contact your administration...");
+					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
 		}
 		return Response.status(Response.Status.ACCEPTED).entity(user).build();
@@ -126,7 +131,7 @@ public class UserServiceImpl implements UserService {
 			return Response.status(Response.Status.ACCEPTED).build();
 		} catch (Exception ex) {
 			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					"Some error occurred, Please contact your administration...");
+					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
 		}
 	}
@@ -148,7 +153,7 @@ public class UserServiceImpl implements UserService {
 		} catch (Exception ex) {
 			logger.error("Got exception while getting email by user Id :" + ex.toString());
 			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					"Some error occurred, Please contact your administration...");
+					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
 		}
 	}
@@ -156,7 +161,8 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public Response registerUser(UserDTO userDTO) {
 		if (checkIfUserWithGivenEmailExists(userDTO.getEmailId())) {
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.FOUND.toString(), null, "This email already exists...");
+			ErrorInfo errorInfo = new ErrorInfo(Response.Status.FOUND.toString(), null,
+					PropertiesUtil.getProperty(CHEF_USER_EMAIL_EXIST));
 			return Response.status(Response.Status.FOUND).entity(errorInfo).build();
 		} else {
 			char[] password = userDTO.getPassword();
@@ -174,5 +180,13 @@ public class UserServiceImpl implements UserService {
 
 	public void setUserBinder(UserBinder userBinder) {
 		this.userBinder = userBinder;
+	}
+
+	public PropertiesUtil getPropertiesUtil() {
+		return propertiesUtil;
+	}
+
+	public void setPropertiesUtil(PropertiesUtil propertiesUtil) {
+		this.propertiesUtil = propertiesUtil;
 	}
 }

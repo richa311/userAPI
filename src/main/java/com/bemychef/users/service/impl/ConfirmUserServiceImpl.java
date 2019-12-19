@@ -16,6 +16,7 @@ import com.bemychef.users.model.User;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.EmailService;
 import com.bemychef.users.service.UserService;
+import com.bemychef.users.util.PropertiesUtil;
 
 @Service
 @Named(value = "confirmationUserServiceImpl")
@@ -31,15 +32,18 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 	private ConfirmationTokenDao confirmationTokenDao;
 
 	private static Logger logger = Logger.getLogger(ConfirmUserServiceImpl.class);
+	private static final String CHEF_USER_CONTACT_ADMIN = "chef.user.contact.admin";
+
 	@Override
 	public Response confirmUser(User user) {
 		ConfirmationToken token = new ConfirmationToken(user);
 		try {
 			sendUserEmail(user, token);
 			return Response.status(Response.Status.ACCEPTED).build();
-		}catch(Exception ex){
-			logger.error("Exception occurred during saving confirmation token : " +ex.toString());
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null, "Some error occurred, Please contact your administration...");
+		} catch (Exception ex) {
+			logger.error("Exception occurred during saving confirmation token : " + ex.toString());
+			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
+					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
 			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
 		}
 	}
@@ -51,7 +55,7 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 		mailMessage.setSubject("Be My Chef: Registration");
 		mailMessage.setText("To confirm your account, please click here : "
 				+ "http://localhost:8080/v1/api/confirm-account?token=" + token.getToken());
-			emailSenderService.sendEmail(mailMessage);
+		emailSenderService.sendEmail(mailMessage);
 	}
 
 	@Override
@@ -62,9 +66,10 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 			try {
 				activateUser(confirmationTokenObj);
 				return Response.status(Response.Status.ACCEPTED).build();
-			}catch(Exception ex){
-				logger.error("Exception occurred while verifying token for user : "+ ex.toString());
-				ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null, "Some error occurred, Please contact your administration...");
+			} catch (Exception ex) {
+				logger.error("Exception occurred while verifying token for user : " + ex.toString());
+				ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
+						PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
 				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
 			}
 		} else {

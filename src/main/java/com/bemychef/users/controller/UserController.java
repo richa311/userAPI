@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bemychef.users.model.Status;
-import com.bemychef.users.model.User;
 import com.bemychef.users.dto.UserDTO;
-import com.bemychef.users.service.UserService;
+import com.bemychef.users.model.Status;
 import com.bemychef.users.service.ConfirmUserService;
+import com.bemychef.users.service.UserService;
 
 /**
  * user registration controller, for routing the APIs
