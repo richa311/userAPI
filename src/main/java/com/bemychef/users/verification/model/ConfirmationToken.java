@@ -1,4 +1,4 @@
-package com.bemychef.users.useraccount.model;
+package com.bemychef.users.verification.model;
 
 import java.util.Date;
 import java.util.UUID;

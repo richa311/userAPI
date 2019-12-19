@@ -1,11 +1,11 @@
-package com.bemychef.users.useraccount.dao.impl;
+package com.bemychef.users.verification.dao.impl;
 
 import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import com.bemychef.users.useraccount.dao.ConfirmationTokenDao;
+import com.bemychef.users.verification.dao.ConfirmationTokenDao;
 
 @Named("ConfirmationDaoImplBean")
 public class ConfirmationTokenDaoImpl implements ConfirmationTokenDao {

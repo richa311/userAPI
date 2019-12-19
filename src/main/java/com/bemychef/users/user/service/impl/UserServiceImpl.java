@@ -1,8 +1,10 @@
 package com.bemychef.users.user.service.impl;
 
+import java.awt.geom.RectangularShape;
 import java.util.List;
 import java.util.Optional;
 
+import com.bemychef.users.exceptions.ErrorInfo;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +18,8 @@ import com.bemychef.users.user.model.User;
 import com.bemychef.users.user.model.dto.UserDTO;
 import com.bemychef.users.user.service.UserService;
 
+import javax.ws.rs.core.Response;
+
 @Service
 public class UserServiceImpl implements UserService {
 	@Autowired
@@ -25,7 +29,7 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserBinder userBinder;
 
-	private static Logger logger = Logger.getLogger(PasswordEncryption.class);
+	private static Logger logger = Logger.getLogger(UserServiceImpl.class);
 
 	/**
 	 * Saves user
@@ -35,10 +39,18 @@ public class UserServiceImpl implements UserService {
 	 */
 	public User register(User user) {
 		logger.debug("Register users method starts..");
-		String encryptedPassword = PasswordEncryption.encrypt(user.getPassword());
-		user.setPassword(encryptedPassword);
-		logger.debug("Register users method ends..");
-		return userRepository.save(user);
+		String encryptedPassword = "";
+		User returnUser = null;
+		try {
+			encryptedPassword = PasswordEncryption.encrypt(user.getPassword());
+			user.setPassword(encryptedPassword);
+			returnUser = userRepository.save(user);
+			logger.debug("Register users method ends..");
+		}catch (Exception ex){
+			logger.error("Caught exception while saving user details : "+ ex.toString());
+			return null;
+		}
+		return returnUser;
 	}
 
 	/**
@@ -46,9 +58,13 @@ public class UserServiceImpl implements UserService {
 	 *
 	 * @param emailId
 	 */
-	public boolean isUserAlreadyPresent(String emailId) {
+	public Response isUserAlreadyPresent(String emailId) {
 		logger.debug("Executing isUserAlreadyPresent..");
-		return checkIfUserWithGivenEmailExists(emailId);
+		if(checkIfUserWithGivenEmailExists(emailId)){
+			return Response.status(Response.Status.FOUND).build();
+		}else{
+			return Response.status(Response.Status.NOT_FOUND).build();
+		}
 	}
 
 	/**
@@ -101,7 +117,7 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean updateStatusByUserId(Long userId, String status) {
+	public Response updateStatusByUserId(Long userId, String status) {
 		logger.debug("updateStatusByUserId starts...");
 		Status enumStatus = null;
 		if (status.equals("Active")) {
@@ -111,7 +127,16 @@ public class UserServiceImpl implements UserService {
 		} else if (status.equalsIgnoreCase("Deleted")) {
 			enumStatus = Status.DELETED;
 		}
-		return userDao.updateStatusOfUserByUserId(userId, enumStatus);
+		try {
+			userDao.updateStatusOfUserByUserId(userId, enumStatus);
+			return Response.status(Response.Status.ACCEPTED).build();
+		}catch(Exception ex){
+			ErrorInfo errorInfo = new ErrorInfo();
+			errorInfo.setCode(Response.Status.INTERNAL_SERVER_ERROR.toString());
+			errorInfo.setField(null);
+			errorInfo.setMessage("Some error occurred, Please contact your administration...");
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
+		}
 	}
 
 	/**
@@ -126,14 +151,22 @@ public class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public String getEmailIdByUserId(long id) {
-		Optional<User> optionalUser = userRepository.findById(id);
-		if(optionalUser.isPresent()) {
-			return optionalUser.get().getEmailId();
-		}else {
-			return null;
+	public Response getEmailIdByUserId(long id) {
+		try {
+			Optional<User> optionalUser = userRepository.findById(id);
+			if (optionalUser.isPresent()) {
+				return Response.status(Response.Status.FOUND).entity(optionalUser.get().getEmailId()).build();
+			} else {
+				return Response.status(Response.Status.BAD_REQUEST).build();
+			}
+		}catch (Exception ex){
+			logger.error("Got exception while getting email by user Id :" + ex.toString());
+			ErrorInfo errorInfo = new ErrorInfo();
+			errorInfo.setCode(Response.Status.INTERNAL_SERVER_ERROR.toString());
+			errorInfo.setField(null);
+			errorInfo.setMessage("Some error occurred, Please contact your administration...");
+			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
 		}
-		
 	}
 	
 	public UserBinder getUserBinder() {

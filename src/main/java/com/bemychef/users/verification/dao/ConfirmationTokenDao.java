@@ -1,4 +1,4 @@
-package com.bemychef.users.useraccount.dao;
+package com.bemychef.users.verification.dao;
 
 import javax.inject.Named;
 

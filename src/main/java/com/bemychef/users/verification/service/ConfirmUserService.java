@@ -1,14 +1,16 @@
-package com.bemychef.users.useraccount.service;
+package com.bemychef.users.verification.service;
 
 import org.springframework.stereotype.Service;
 
 import com.bemychef.users.user.model.User;
 
+import javax.ws.rs.core.Response;
+
 @Service
 public interface ConfirmUserService {
 
-	void confirmUser(User user);
+	Response confirmUser(User user);
 
-	int verifyUserByToken(String confirmationToken);
+	Response verifyUserByToken(String confirmationToken);
 
 }

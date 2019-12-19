@@ -55,7 +55,7 @@ public class UserDaoImpl implements UserDao {
 
 	@Override
 	@Transactional
-	public boolean updateStatusOfUserByUserId(Long userId, Status status) {
+	public void updateStatusOfUserByUserId(Long userId, Status status) {
 		logger.debug("updateStatusOfUserByUserId starts..");
 		Query query = em.createQuery("UPDATE User u SET u.status = :status WHERE u.id = :userId");
 		query.setParameter("status", status);
@@ -64,6 +64,5 @@ public class UserDaoImpl implements UserDao {
 		em.joinTransaction();
 		query.executeUpdate();
 		logger.debug("updateStatusOfUserByUserId starts..");
-		return true;
 	}
 }

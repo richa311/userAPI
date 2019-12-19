@@ -8,6 +8,8 @@ import com.bemychef.users.user.model.Status;
 import com.bemychef.users.user.model.User;
 import com.bemychef.users.user.model.dto.UserDTO;
 
+import javax.ws.rs.core.Response;
+
 /**
  * Service class for registration
  */
@@ -27,14 +29,14 @@ public interface UserService {
 	 *
 	 * @param emailId
 	 */
-	boolean isUserAlreadyPresent(String emailId);
+	Response isUserAlreadyPresent(String emailId);
 
 	/**
 	 * Updates user's registration details
 	 *
 	 * @param user
 	 */
-	void updateDetails(Long userId, UserDTO userDTO);
+	Response updateDetails(Long userId, UserDTO userDTO);
 
 	/**
 	 *
@@ -51,6 +53,7 @@ public interface UserService {
 
 	/**
 	 * gets user's status by userId
+	 * 
 	 * @param userId
 	 * @return
 	 */
@@ -58,15 +61,17 @@ public interface UserService {
 
 	/**
 	 * updates user's status by userId
+	 * 
 	 * @param userId
 	 * @param status
 	 * @return
 	 */
-	boolean updateStatusByUserId(Long userId, String status);
+	Response updateStatusByUserId(Long userId, String status);
 
 	/**
 	 * gets email id by user id
+	 * 
 	 * @param id
 	 */
-	String getEmailIdByUserId(long id);
+	Response getEmailIdByUserId(long id);
 }

@@ -12,5 +12,5 @@ public interface UserDao {
 
 	void updateUserDetails(User user);
 
-	boolean updateStatusOfUserByUserId(Long userId, Status status);
+	void updateStatusOfUserByUserId(Long userId, Status status);
 }
