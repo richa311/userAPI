@@ -20,7 +20,7 @@ import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.EmailService;
 import com.bemychef.users.service.UserService;
 import com.bemychef.users.util.PropertiesUtil;
-import com.bemychef.users.util.ResponseStatusCodeConstats;
+import com.bemychef.users.constants.ResponseStatusCodeConstants;
 
 @Service
 @Named(value = "confirmationUserServiceImpl")
@@ -36,8 +36,6 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 	private ConfirmationTokenDao confirmationTokenDao;
 
 	private static Logger logger = Logger.getLogger(ConfirmUserServiceImpl.class);
-	private static final String CHEF_USER_CONTACT_ADMIN = "chef.user.contact.admin";
-
 	@Override
 	public Response confirmUser(User user) {
 		ConfirmationToken token = new ConfirmationToken(user);
@@ -79,8 +77,8 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 
 	private Response returnResponseUponException() {
 		Map<String, String> responseMap = new HashMap<>();
-		responseMap.put(ResponseStatusCodeConstats.CONTACT_ADMIN.getStatusCode(),
-				PropertiesUtil.getProperty(ResponseStatusCodeConstats.CONTACT_ADMIN.getStatusCode()));
+		responseMap.put(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode(),
+				PropertiesUtil.getProperty(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode()));
 		ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
 		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
 	}

@@ -1,5 +1,7 @@
 package com.bemychef.users.model;
 
+import com.bemychef.users.constants.Status;
+
 import java.sql.Timestamp;
 import java.util.Set;
 

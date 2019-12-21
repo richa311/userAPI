@@ -2,7 +2,7 @@ package com.bemychef.users.dao;
 
 import org.springframework.stereotype.Repository;
 
-import com.bemychef.users.model.Status;
+import com.bemychef.users.constants.Status;
 import com.bemychef.users.model.User;
 
 @Repository

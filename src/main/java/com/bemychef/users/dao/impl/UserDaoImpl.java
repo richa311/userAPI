@@ -10,7 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bemychef.users.security.PasswordEncryption;
 import com.bemychef.users.dao.UserDao;
-import com.bemychef.users.model.Status;
+import com.bemychef.users.constants.Status;
 import com.bemychef.users.model.User;
 
 @Named("userDaoBean")

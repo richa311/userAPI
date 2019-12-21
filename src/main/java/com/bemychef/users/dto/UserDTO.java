@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import com.bemychef.users.model.Address;
 import com.bemychef.users.model.Device;
-import com.bemychef.users.model.Status;
+import com.bemychef.users.constants.Status;
 
 @NotNull
 public class UserDTO {

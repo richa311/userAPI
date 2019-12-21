@@ -19,13 +19,13 @@ import com.bemychef.users.dao.UserDao;
 import com.bemychef.users.dao.UserRepository;
 import com.bemychef.users.dto.UserDTO;
 import com.bemychef.users.exceptions.ResponseInfo;
-import com.bemychef.users.model.Status;
+import com.bemychef.users.constants.Status;
 import com.bemychef.users.model.User;
 import com.bemychef.users.security.PasswordEncryption;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.UserService;
 import com.bemychef.users.util.PropertiesUtil;
-import com.bemychef.users.util.ResponseStatusCodeConstats;
+import com.bemychef.users.constants.ResponseStatusCodeConstants;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -47,8 +47,8 @@ public class UserServiceImpl implements UserService {
 		logger.debug("Executing isUserAlreadyPresent..");
 		if (checkIfUserWithGivenEmailExists(emailId)) {
 			Map<String, String> responseMap = new HashMap<>();
-			responseMap.put(ResponseStatusCodeConstats.EMAIL_ALREADY_EXISTS.getStatusCode(),
-					PropertiesUtil.getProperty(ResponseStatusCodeConstats.EMAIL_ALREADY_EXISTS.getStatusCode()));
+			responseMap.put(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode()));
 			ResponseInfo responseInfo = new ResponseInfo(emailId, responseMap);
 			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		} else {
@@ -87,8 +87,8 @@ public class UserServiceImpl implements UserService {
 			return Response.status(Response.Status.OK).entity(userBinder.bindUserToUserDTO(userOptional.get())).build();
 		else {
 			Map<String, String> responseMap = new HashMap<>();
-			responseMap.put(ResponseStatusCodeConstats.USER_NOT_FOUND.getStatusCode(),
-					ResponseStatusCodeConstats.USER_NOT_FOUND.getStatusCode());
+			responseMap.put(ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode(),
+					ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode());
 			ResponseInfo responseInfo = new ResponseInfo(userId.toString(), responseMap);
 			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		}
@@ -103,8 +103,8 @@ public class UserServiceImpl implements UserService {
 			return Response.status(Response.Status.OK).entity(optionalUser.get().getStatus()).build();
 		} else {
 			Map<String, String> responseMap = new HashMap<>();
-			responseMap.put(ResponseStatusCodeConstats.USER_NOT_FOUND.getStatusCode(),
-					ResponseStatusCodeConstats.USER_NOT_FOUND.getStatusCode());
+			responseMap.put(ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode(),
+					ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode());
 			ResponseInfo responseInfo = new ResponseInfo(userId.toString(), responseMap);
 			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		}
@@ -158,8 +158,8 @@ public class UserServiceImpl implements UserService {
 		} else {
 			if (userDTO.getEmailId() != null) {
 				if (checkIfUserWithGivenEmailExists(userDTO.getEmailId())) {
-					responseMap.put(ResponseStatusCodeConstats.EMAIL_ALREADY_EXISTS.getStatusCode(), PropertiesUtil
-							.getProperty(ResponseStatusCodeConstats.EMAIL_ALREADY_EXISTS.getStatusCode()));
+					responseMap.put(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode(), PropertiesUtil
+							.getProperty(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode()));
 					ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
 					return Response.status(Response.Status.OK).entity(responseInfo).build();
 				} else {
@@ -187,20 +187,20 @@ public class UserServiceImpl implements UserService {
 	private Map<String, String> validateUser(UserDTO userDTO) {
 		Map<String, String> responseMap = new HashMap<>();
 		if (null == userDTO.getEmailId() && null == userDTO.getContactNumber()) {
-			responseMap.put(ResponseStatusCodeConstats.EITHER_MOBILE_OR_EMAIL.getStatusCode(),
-					PropertiesUtil.getProperty(ResponseStatusCodeConstats.EITHER_MOBILE_OR_EMAIL.getStatusCode()));
+			responseMap.put(ResponseStatusCodeConstants.EITHER_MOBILE_OR_EMAIL.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.EITHER_MOBILE_OR_EMAIL.getStatusCode()));
 		}
 		if (responseMap.isEmpty() && null == userDTO.getFirstName()) {
-			responseMap.put(ResponseStatusCodeConstats.INVALID_FIRST_NAME.getStatusCode(),
-					PropertiesUtil.getProperty(ResponseStatusCodeConstats.INVALID_FIRST_NAME.getStatusCode()));
+			responseMap.put(ResponseStatusCodeConstants.INVALID_FIRST_NAME.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_FIRST_NAME.getStatusCode()));
 		}
 		if (responseMap.isEmpty() && null == userDTO.getLastName()) {
-			responseMap.put(ResponseStatusCodeConstats.INVALID_LAST_NAME.getStatusCode(),
-					PropertiesUtil.getProperty(ResponseStatusCodeConstats.INVALID_LAST_NAME.getStatusCode()));
+			responseMap.put(ResponseStatusCodeConstants.INVALID_LAST_NAME.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_LAST_NAME.getStatusCode()));
 		}
 		if (responseMap.isEmpty() && !validateEmail(userDTO.getEmailId())) {
-			responseMap.put(ResponseStatusCodeConstats.INVALID_EMAILID.getStatusCode(),
-					PropertiesUtil.getProperty(ResponseStatusCodeConstats.INVALID_EMAILID.getStatusCode()));
+			responseMap.put(ResponseStatusCodeConstants.INVALID_EMAILID.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_EMAILID.getStatusCode()));
 		}
 
 		return responseMap;
@@ -208,8 +208,8 @@ public class UserServiceImpl implements UserService {
 
 	private Response returnResponseUponException() {
 		Map<String, String> responseMap = new HashMap<>();
-		responseMap.put(ResponseStatusCodeConstats.CONTACT_ADMIN.getStatusCode(),
-				PropertiesUtil.getProperty(ResponseStatusCodeConstats.CONTACT_ADMIN.getStatusCode()));
+		responseMap.put(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode(),
+				PropertiesUtil.getProperty(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode()));
 		ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
 		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
 	}
