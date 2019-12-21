@@ -1,8 +1,8 @@
 package com.bemychef.users.service.impl;
 
 import com.bemychef.users.binder.UserBinder;
-import com.bemychef.users.constants.ResponseStatusCodeConstants;
 import com.bemychef.users.constants.Status;
+import com.bemychef.users.constants.ErrorConstants;
 import com.bemychef.users.dao.UserDao;
 import com.bemychef.users.dao.UserRepository;
 import com.bemychef.users.dto.UserDTO;
@@ -12,6 +12,7 @@ import com.bemychef.users.security.PasswordEncryption;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.UserService;
 import com.bemychef.users.util.PropertiesUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,11 +42,7 @@ public class UserServiceImpl implements UserService {
         if (Objects.nonNull(checkIfUserWithGivenEmailExists(emailId)) &&
                 Objects.nonNull(checkIfUserWithGivenEmailExists(emailId).getStatus()) &&
                 checkIfUserWithGivenEmailExists(emailId).getStatus().equals(Status.ACTIVE)) {
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode(),
-                    PropertiesUtil.getProperty(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode()));
-            ResponseInfo responseInfo = new ResponseInfo(emailId, responseMap);
-            return Response.status(Response.Status.OK).entity(responseInfo).build();
+            return Response.status(Response.Status.OK).entity(ErrorConstants.EMAIL_ALREADY_EXISTS).build();
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity(emailId).build();
         }
@@ -81,11 +78,7 @@ public class UserServiceImpl implements UserService {
         if (userOptional.isPresent())
             return Response.status(Response.Status.OK).entity(userBinder.bindUserToUserDTO(userOptional.get())).build();
         else {
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put(ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode(),
-                    ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode());
-            ResponseInfo responseInfo = new ResponseInfo(userId.toString(), responseMap);
-            return Response.status(Response.Status.OK).entity(responseInfo).build();
+            return Response.status(Response.Status.OK).entity(ErrorConstants.USER_NOT_FOUND).build();
         }
     }
 
@@ -97,11 +90,7 @@ public class UserServiceImpl implements UserService {
         if (optionalUser.isPresent()) {
             return Response.status(Response.Status.OK).entity(optionalUser.get().getStatus()).build();
         } else {
-            Map<String, String> responseMap = new HashMap<>();
-            responseMap.put(ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode(),
-                    ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode());
-            ResponseInfo responseInfo = new ResponseInfo(userId.toString(), responseMap);
-            return Response.status(Response.Status.OK).entity(responseInfo).build();
+            return Response.status(Response.Status.OK).entity(ErrorConstants.USER_NOT_FOUND).build();
         }
     }
 
@@ -109,7 +98,7 @@ public class UserServiceImpl implements UserService {
     public Response updateStatusByUserId(Long userId, String status) {
         logger.debug("updateStatusByUserId starts...");
         Status enumStatus = null;
-        if (status.equals("Active")) {
+        if (status.equalsIgnoreCase("Active")) {
             enumStatus = Status.ACTIVE;
         } else if (status.equalsIgnoreCase("Inactive")) {
             enumStatus = Status.INACTIVE;
@@ -145,22 +134,20 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Response registerUser(UserDTO userDTO) {
-        Map<String, String> responseMap = validateUser(userDTO);
-        if (!responseMap.isEmpty()) {
-            ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
-            return Response.status(Response.Status.OK).entity(responseInfo).build();
+    public Response registerUser(UserDTO userDTO) throws JsonProcessingException {
+        List<Response> responseList = validateUser(userDTO);
+        if (!responseList.isEmpty()) {
+            return responseList.get(0);
         } else {
             if (Objects.nonNull(userDTO.getEmailId())) {
                 User user = checkIfUserWithGivenEmailExists(userDTO.getEmailId());
                 if (Objects.nonNull(user) && Objects.nonNull(user.getStatus()) && user.getStatus().equals(Status.ACTIVE)) {
-                    responseMap.put(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode(), PropertiesUtil
-                            .getProperty(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode()));
-                    ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
-                    return Response.status(Response.Status.OK).entity(responseInfo).build();
+                    return Response.status(Response.Status.OK).entity(ErrorConstants.EMAIL_ALREADY_EXISTS).build();
                 } else if (Objects.nonNull(user) && Objects.nonNull(user.getStatus()) &&
                         (user.getStatus().equals(Status.INACTIVE) || user.getStatus().equals(Status.DELETED))) {
-                    confirmUserService.confirmUser(user);
+                    if (confirmUserService.confirmUser(user).getStatus() == Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
+                        return returnResponseUponException();
+                    }
                     UserDTO userDto = userBinder.bindUserToUserDTO(user);
                     return Response.status(Response.Status.OK).entity(userDto).build();
                 } else {
@@ -187,34 +174,25 @@ public class UserServiceImpl implements UserService {
         return Response.status(Response.Status.CREATED).entity(userBinder.bindUserToUserDTO(user)).build();
     }
 
-    private Map<String, String> validateUser(UserDTO userDTO) {
-        Map<String, String> responseMap = new HashMap<>();
+    private List<Response> validateUser(UserDTO userDTO) throws JsonProcessingException {
+        List<Response> responseList = new ArrayList<>();
         if (Objects.isNull(userDTO.getEmailId()) && Objects.isNull(userDTO.getContactNumber())) {
-            responseMap.put(ResponseStatusCodeConstants.EITHER_MOBILE_OR_EMAIL.getStatusCode(),
-                    PropertiesUtil.getProperty(ResponseStatusCodeConstants.EITHER_MOBILE_OR_EMAIL.getStatusCode()));
+            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.EITHER_MOBILE_OR_EMAIL).build());
         }
-        if (responseMap.isEmpty() && Objects.isNull(userDTO.getFirstName())) {
-            responseMap.put(ResponseStatusCodeConstants.INVALID_FIRST_NAME.getStatusCode(),
-                    PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_FIRST_NAME.getStatusCode()));
+        if (responseList.isEmpty() && Objects.isNull(userDTO.getFirstName())) {
+            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.INVALID_FIRST_NAME).build());
         }
-        if (responseMap.isEmpty() && Objects.isNull(userDTO.getLastName())) {
-            responseMap.put(ResponseStatusCodeConstants.INVALID_LAST_NAME.getStatusCode(),
-                    PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_LAST_NAME.getStatusCode()));
+        if (responseList.isEmpty() && Objects.isNull(userDTO.getLastName())) {
+            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.INVALID_LAST_NAME).build());
         }
-        if (responseMap.isEmpty() && !validateEmail(userDTO.getEmailId())) {
-            responseMap.put(ResponseStatusCodeConstants.INVALID_EMAILID.getStatusCode(),
-                    PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_EMAILID.getStatusCode()));
+        if (responseList.isEmpty() && !validateEmail(userDTO.getEmailId())) {
+            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.INVALID_EMAIL).build());
         }
-
-        return responseMap;
+        return responseList;
     }
 
     private Response returnResponseUponException() {
-        Map<String, String> responseMap = new HashMap<>();
-        responseMap.put(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode(),
-                PropertiesUtil.getProperty(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode()));
-        ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
-        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.CONTACT_ADMIN).build();
     }
 
     private User register(User user) {

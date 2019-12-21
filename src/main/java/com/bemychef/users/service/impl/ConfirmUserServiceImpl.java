@@ -1,11 +1,9 @@
 package com.bemychef.users.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.inject.Named;
 import javax.ws.rs.core.Response;
 
+import com.bemychef.users.constants.ErrorConstants;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
@@ -13,14 +11,11 @@ import org.springframework.stereotype.Service;
 
 import com.bemychef.users.dao.ConfirmationTokenDao;
 import com.bemychef.users.dao.ConfirmationTokenRepository;
-import com.bemychef.users.exceptions.ResponseInfo;
 import com.bemychef.users.model.ConfirmationToken;
 import com.bemychef.users.model.User;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.EmailService;
 import com.bemychef.users.service.UserService;
-import com.bemychef.users.util.PropertiesUtil;
-import com.bemychef.users.constants.ResponseStatusCodeConstants;
 
 @Service
 @Named(value = "confirmationUserServiceImpl")
@@ -76,11 +71,7 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 	}
 
 	private Response returnResponseUponException() {
-		Map<String, String> responseMap = new HashMap<>();
-		responseMap.put(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode(),
-				PropertiesUtil.getProperty(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode()));
-		ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
+		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.CONTACT_ADMIN).build();
 	}
 
 	private Response activateUser(ConfirmationToken confirmationTokenObj) {
