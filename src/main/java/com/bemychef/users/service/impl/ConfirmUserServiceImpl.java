@@ -1,5 +1,8 @@
 package com.bemychef.users.service.impl;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.inject.Named;
 import javax.ws.rs.core.Response;
 
@@ -10,13 +13,14 @@ import org.springframework.stereotype.Service;
 
 import com.bemychef.users.dao.ConfirmationTokenDao;
 import com.bemychef.users.dao.ConfirmationTokenRepository;
-import com.bemychef.users.exceptions.ErrorInfo;
+import com.bemychef.users.exceptions.ResponseInfo;
 import com.bemychef.users.model.ConfirmationToken;
 import com.bemychef.users.model.User;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.EmailService;
 import com.bemychef.users.service.UserService;
 import com.bemychef.users.util.PropertiesUtil;
+import com.bemychef.users.util.ResponseStatusCodeConstats;
 
 @Service
 @Named(value = "confirmationUserServiceImpl")
@@ -42,9 +46,7 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 			return Response.status(Response.Status.ACCEPTED).build();
 		} catch (Exception ex) {
 			logger.error("Exception occurred during saving confirmation token : " + ex.toString());
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
+			return returnResponseUponException();
 		}
 	}
 
@@ -68,13 +70,19 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 				return Response.status(Response.Status.ACCEPTED).build();
 			} catch (Exception ex) {
 				logger.error("Exception occurred while verifying token for user : " + ex.toString());
-				ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-						PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
-				return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
+				return returnResponseUponException();
 			}
 		} else {
 			return Response.status(Response.Status.NOT_FOUND).build();
 		}
+	}
+
+	private Response returnResponseUponException() {
+		Map<String, String> responseMap = new HashMap<>();
+		responseMap.put(ResponseStatusCodeConstats.CONTACT_ADMIN.getStatusCode(),
+				PropertiesUtil.getProperty(ResponseStatusCodeConstats.CONTACT_ADMIN.getStatusCode()));
+		ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
+		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
 	}
 
 	private Response activateUser(ConfirmationToken confirmationTokenObj) {

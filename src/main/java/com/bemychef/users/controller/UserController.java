@@ -1,7 +1,5 @@
 package com.bemychef.users.controller;
 
-import java.util.List;
-
 import javax.ws.rs.core.Response;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bemychef.users.dto.UserDTO;
-import com.bemychef.users.model.Status;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.UserService;
 
@@ -59,8 +56,8 @@ public class UserController {
 	/**
 	 * @return list of all users
 	 */
-	@GetMapping(path = "/users", consumes = "application/json", produces = "application/json")
-	public List<UserDTO> getUsers() {
+	@GetMapping(path = "/users", produces = "application/json")
+	public Response getUsers() {
 		return userService.getUserDetails();
 	}
 
@@ -69,8 +66,8 @@ public class UserController {
 	 * @param userId
 	 * @return user which belongs to the passed userId
 	 */
-	@GetMapping(path = "/users/{userId}", consumes = "application/json", produces = "application/json")
-	public UserDTO getUserDetailsById(@PathVariable Long userId) {
+	@GetMapping(path = "/users/{userId}", produces = "application/json")
+	public Response getUserDetailsById(@PathVariable Long userId) {
 		return userService.getUserDetailsById(userId);
 	}
 
@@ -80,7 +77,7 @@ public class UserController {
 	 * @return user status by user id
 	 */
 	@GetMapping(path = "/status/{userId}")
-	public Status getUserStatus(@PathVariable Long userId) {
+	public Response getUserStatus(@PathVariable Long userId) {
 		return userService.getUserStatus(userId);
 	}
 
@@ -102,7 +99,7 @@ public class UserController {
 	 * @param userId
 	 * @param userDTO
 	 */
-	@PostMapping(path = "users/{userId}", produces = "application/json")
+	@PostMapping(path = "users/{userId}", consumes="application/json", produces = "application/json")
 	public Response updateUserDetails(@PathVariable Long userId, @RequestBody UserDTO userDTO) {
 		return userService.updateDetails(userId, userDTO);
 	}
