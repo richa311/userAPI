@@ -177,7 +177,9 @@ public class UserServiceImpl implements UserService {
 		User user = userBinder.bindUserDTOToUser(userDTO);
 		user.setPassword(Arrays.toString(password));
 		if (null != register(user)) {
-			confirmUserService.confirmUser(user);
+			if(confirmUserService.confirmUser(user).getStatus() == Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()){
+				return returnResponseUponException();
+			}
 		} else {
 			return returnResponseUponException();
 		}
