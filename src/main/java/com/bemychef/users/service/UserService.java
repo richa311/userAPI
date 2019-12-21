@@ -73,4 +73,10 @@ public interface UserService {
 	 * @throws JsonProcessingException
 	 */
 	Response registerUser(UserDTO userDTO) throws JsonProcessingException;
+
+	/**
+	 * @param status
+	 * @return Response containing count of users
+	 */
+	Response getCountOfUsers(String status);
 }

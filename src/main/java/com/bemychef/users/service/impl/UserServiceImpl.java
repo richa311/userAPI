@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.ws.rs.core.Response;
 import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -217,6 +218,16 @@ public class UserServiceImpl implements UserService {
         String regex = "^(.+)@(.+)$";
         Pattern pattern = Pattern.compile(regex);
         return pattern.matcher(emailId).matches();
+    }
+
+    @Override
+    public Response getCountOfUsers(String status) {
+        List<User> userList = (List<User>) userRepository.findAll();
+        if(status.equalsIgnoreCase("all")){
+            return Response.status(Response.Status.OK).entity(userList.size()).build();
+        }else {
+            return Response.status(Response.Status.OK).entity(userList.stream().filter(user -> user.getStatus().toString().equalsIgnoreCase(status)).collect(Collectors.toList()).size()).build();
+        }
     }
 
     public UserBinder getUserBinder() {
