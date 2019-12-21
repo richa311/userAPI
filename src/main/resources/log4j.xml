@@ -12,7 +12,7 @@
 		</layout>
 	</appender>
 
-	<logger name="com.moneytransferapp">
+	<logger name="com.bemychef">
 		<level value="debug" />
 		<appender-ref ref="console" />
 	</logger>

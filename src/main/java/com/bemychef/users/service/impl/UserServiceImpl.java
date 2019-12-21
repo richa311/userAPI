@@ -2,26 +2,30 @@ package com.bemychef.users.service.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
-import com.bemychef.users.exceptions.ErrorInfo;
-import com.bemychef.users.service.ConfirmUserService;
+import javax.ws.rs.core.Response;
+
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.bemychef.users.security.PasswordEncryption;
 import com.bemychef.users.binder.UserBinder;
 import com.bemychef.users.dao.UserDao;
 import com.bemychef.users.dao.UserRepository;
-import com.bemychef.users.model.Status;
-import com.bemychef.users.model.User;
 import com.bemychef.users.dto.UserDTO;
+import com.bemychef.users.exceptions.ResponseInfo;
+import com.bemychef.users.constants.Status;
+import com.bemychef.users.model.User;
+import com.bemychef.users.security.PasswordEncryption;
+import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.UserService;
 import com.bemychef.users.util.PropertiesUtil;
-
-import javax.ws.rs.core.Response;
+import com.bemychef.users.constants.ResponseStatusCodeConstants;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -37,33 +41,18 @@ public class UserServiceImpl implements UserService {
 	private PropertiesUtil propertiesUtil;
 
 	private static Logger logger = Logger.getLogger(UserServiceImpl.class);
-	private static final String CHEF_USER_CONTACT_ADMIN = "chef.user.contact.admin";
-	private static final String CHEF_USER_EMAIL_EXIST = "chef.user.email.exist";
-
-	private User register(User user) {
-		logger.debug("Register users method starts..");
-		String encryptedPassword = "";
-		User returnUser = null;
-		try {
-			encryptedPassword = PasswordEncryption.encrypt(user.getPassword());
-			user.setPassword(encryptedPassword);
-			returnUser = userRepository.save(user);
-			logger.debug("Register users method ends..");
-		} catch (Exception ex) {
-			logger.error("Caught exception while saving user details : " + ex.toString());
-			return null;
-		}
-		returnUser.setPassword("");
-		return returnUser;
-	}
 
 	@Override
 	public Response isUserAlreadyPresent(String emailId) {
 		logger.debug("Executing isUserAlreadyPresent..");
 		if (checkIfUserWithGivenEmailExists(emailId)) {
-			return Response.status(Response.Status.FOUND).build();
+			Map<String, String> responseMap = new HashMap<>();
+			responseMap.put(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode()));
+			ResponseInfo responseInfo = new ResponseInfo(emailId, responseMap);
+			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		} else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+			return Response.status(Response.Status.NOT_FOUND).entity(emailId).build();
 		}
 	}
 
@@ -75,43 +64,49 @@ public class UserServiceImpl implements UserService {
 			user = userBinder.bindUserDTOToUser(userDTO);
 			userDao.updateUserDetails(user);
 		} catch (Exception ex) {
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
+			return returnResponseUponException();
 		}
-		return Response.status(Response.Status.ACCEPTED).entity(user).build();
+		return Response.status(Response.Status.ACCEPTED).entity(userDTO).build();
 	}
 
 	@Override
-	public List<UserDTO> getUserDetails() {
+	public Response getUserDetails() {
 		logger.debug("Executing getUserDetails...");
 		List<User> users = (List<User>) userRepository.findAll();
 		List<UserDTO> userDTOList = new ArrayList<>();
 		users.forEach(user -> userDTOList.add(userBinder.bindUserToUserDTO(user)));
-		return userDTOList;
+		return Response.status(Response.Status.OK).entity(userDTOList).build();
 	}
 
 	@Override
-	public UserDTO getUserDetailsById(Long userId) {
+	public Response getUserDetailsById(Long userId) {
 		logger.debug("getUserDetailsById starts...");
 		Optional<User> userOptional = userRepository.findById(userId);
 		logger.debug("getUserDetailsById ends...");
 		if (userOptional.isPresent())
-			return userBinder.bindUserToUserDTO(userOptional.get());
+			return Response.status(Response.Status.OK).entity(userBinder.bindUserToUserDTO(userOptional.get())).build();
 		else {
-			return null;
+			Map<String, String> responseMap = new HashMap<>();
+			responseMap.put(ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode(),
+					ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode());
+			ResponseInfo responseInfo = new ResponseInfo(userId.toString(), responseMap);
+			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		}
 	}
 
 	@Override
-	public Status getUserStatus(Long userId) {
+	public Response getUserStatus(Long userId) {
 		logger.debug("getUserStatus starts...");
 		Optional<User> optionalUser = userRepository.findById(userId);
 		logger.debug("getUserStatus ends...");
 		if (optionalUser.isPresent()) {
-			return optionalUser.get().getStatus();
+			return Response.status(Response.Status.OK).entity(optionalUser.get().getStatus()).build();
 		} else {
-			return null;
+			Map<String, String> responseMap = new HashMap<>();
+			responseMap.put(ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode(),
+					ResponseStatusCodeConstants.USER_NOT_FOUND.getStatusCode());
+			ResponseInfo responseInfo = new ResponseInfo(userId.toString(), responseMap);
+			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		}
 	}
 
@@ -130,9 +125,7 @@ public class UserServiceImpl implements UserService {
 			userDao.updateStatusOfUserByUserId(userId, enumStatus);
 			return Response.status(Response.Status.ACCEPTED).build();
 		} catch (Exception ex) {
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
+			return returnResponseUponException();
 		}
 	}
 
@@ -152,26 +145,99 @@ public class UserServiceImpl implements UserService {
 			}
 		} catch (Exception ex) {
 			logger.error("Got exception while getting email by user Id :" + ex.toString());
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.INTERNAL_SERVER_ERROR.toString(), null,
-					PropertiesUtil.getProperty(CHEF_USER_CONTACT_ADMIN));
-			return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(errorInfo).build();
+			return returnResponseUponException();
 		}
 	}
 
 	@Override
 	public Response registerUser(UserDTO userDTO) {
-		if (checkIfUserWithGivenEmailExists(userDTO.getEmailId())) {
-			ErrorInfo errorInfo = new ErrorInfo(Response.Status.FOUND.toString(), null,
-					PropertiesUtil.getProperty(CHEF_USER_EMAIL_EXIST));
-			return Response.status(Response.Status.FOUND).entity(errorInfo).build();
+		Map<String, String> responseMap = validateUser(userDTO);
+		if (!responseMap.isEmpty()) {
+			ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
+			return Response.status(Response.Status.OK).entity(responseInfo).build();
 		} else {
-			char[] password = userDTO.getPassword();
-			User user = userBinder.bindUserDTOToUser(userDTO);
-			user.setPassword(Arrays.toString(password));
-			register(user);
-			confirmUserService.confirmUser(user);
-			return Response.status(Response.Status.CREATED).entity(user).build();
+			if (userDTO.getEmailId() != null) {
+				if (checkIfUserWithGivenEmailExists(userDTO.getEmailId())) {
+					responseMap.put(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode(), PropertiesUtil
+							.getProperty(ResponseStatusCodeConstants.EMAIL_ALREADY_EXISTS.getStatusCode()));
+					ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
+					return Response.status(Response.Status.OK).entity(responseInfo).build();
+				} else {
+					return registerAndConfirmUser(userDTO);
+				}
+			} else if (userDTO.getContactNumber() != null) {
+				// code for mobile verification
+			}
 		}
+		return null;
+	}
+
+	private Response registerAndConfirmUser(UserDTO userDTO) {
+		char[] password = userDTO.getPassword();
+		User user = userBinder.bindUserDTOToUser(userDTO);
+		user.setPassword(Arrays.toString(password));
+		if (null != register(user)) {
+			if(confirmUserService.confirmUser(user).getStatus() == Response.Status.INTERNAL_SERVER_ERROR.getStatusCode()){
+				return returnResponseUponException();
+			}
+		} else {
+			return returnResponseUponException();
+		}
+		return Response.status(Response.Status.CREATED).entity(user).build();
+	}
+
+	private Map<String, String> validateUser(UserDTO userDTO) {
+		Map<String, String> responseMap = new HashMap<>();
+		if (null == userDTO.getEmailId() && null == userDTO.getContactNumber()) {
+			responseMap.put(ResponseStatusCodeConstants.EITHER_MOBILE_OR_EMAIL.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.EITHER_MOBILE_OR_EMAIL.getStatusCode()));
+		}
+		if (responseMap.isEmpty() && null == userDTO.getFirstName()) {
+			responseMap.put(ResponseStatusCodeConstants.INVALID_FIRST_NAME.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_FIRST_NAME.getStatusCode()));
+		}
+		if (responseMap.isEmpty() && null == userDTO.getLastName()) {
+			responseMap.put(ResponseStatusCodeConstants.INVALID_LAST_NAME.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_LAST_NAME.getStatusCode()));
+		}
+		if (responseMap.isEmpty() && !validateEmail(userDTO.getEmailId())) {
+			responseMap.put(ResponseStatusCodeConstants.INVALID_EMAILID.getStatusCode(),
+					PropertiesUtil.getProperty(ResponseStatusCodeConstants.INVALID_EMAILID.getStatusCode()));
+		}
+
+		return responseMap;
+	}
+
+	private Response returnResponseUponException() {
+		Map<String, String> responseMap = new HashMap<>();
+		responseMap.put(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode(),
+				PropertiesUtil.getProperty(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode()));
+		ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
+		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
+	}
+
+	private User register(User user) {
+		logger.debug("Register users method starts..");
+		String encryptedPassword = "";
+		User returnUser = null;
+		try {
+			encryptedPassword = PasswordEncryption.encrypt(user.getPassword());
+			user.setPassword(encryptedPassword);
+			user.setStatus(Status.INACTIVE);
+			returnUser = userRepository.save(user);
+			logger.debug("Register users method ends..");
+		} catch (Exception ex) {
+			logger.error("Caught exception while saving user details : " + ex.toString());
+			return null;
+		}
+		returnUser.setPassword("");
+		return returnUser;
+	}
+
+	private boolean validateEmail(String emailId) {
+		String regex = "^(.+)@(.+)$";
+		Pattern pattern = Pattern.compile(regex);
+		return pattern.matcher(emailId).matches();
 	}
 
 	public UserBinder getUserBinder() {

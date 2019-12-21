@@ -1,14 +1,10 @@
 package com.bemychef.users.service;
 
-import java.util.List;
+import javax.ws.rs.core.Response;
 
 import org.springframework.stereotype.Service;
 
-import com.bemychef.users.model.Status;
-import com.bemychef.users.model.User;
 import com.bemychef.users.dto.UserDTO;
-
-import javax.ws.rs.core.Response;
 
 /**
  * Service class for registration
@@ -34,14 +30,14 @@ public interface UserService {
 	 *
 	 * @return List of Users
 	 */
-	List<UserDTO> getUserDetails();
+	Response getUserDetails();
 
 	/**
 	 *
 	 * @param userId
 	 * @return user by userId
 	 */
-	UserDTO getUserDetailsById(Long userId);
+	Response getUserDetailsById(Long userId);
 
 	/**
 	 * gets user's status by userId
@@ -49,7 +45,7 @@ public interface UserService {
 	 * @param userId
 	 * @return
 	 */
-	Status getUserStatus(Long userId);
+	Response getUserStatus(Long userId);
 
 	/**
 	 * updates user's status by userId

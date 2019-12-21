@@ -1,4 +1,4 @@
-package com.bemychef.users.model;
+package com.bemychef.users.constants;
 
 public enum Status {
 
