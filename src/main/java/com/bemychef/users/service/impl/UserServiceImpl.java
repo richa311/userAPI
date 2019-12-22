@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
                 checkIfUserWithGivenEmailExists(emailId).getStatus().equals(Status.ACTIVE)) {
             return Response.status(Response.Status.OK).entity(ErrorConstants.EMAIL_ALREADY_EXISTS).build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).entity(emailId).build();
+            return Response.status(Response.Status.OK).entity(ErrorConstants.USER_NOT_FOUND).build();
         }
     }
 
@@ -59,7 +59,7 @@ public class UserServiceImpl implements UserService {
         } catch (Exception ex) {
             return returnResponseUponException();
         }
-        return Response.status(Response.Status.ACCEPTED).entity(userDTO).build();
+        return Response.status(Response.Status.OK).entity(userDTO).build();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class UserServiceImpl implements UserService {
         }
         try {
             userDao.updateStatusOfUserByUserId(userId, enumStatus);
-            return Response.status(Response.Status.ACCEPTED).build();
+            return Response.status(Response.Status.OK).build();
         } catch (Exception ex) {
             return returnResponseUponException();
         }
@@ -124,9 +124,9 @@ public class UserServiceImpl implements UserService {
         try {
             Optional<User> optionalUser = userRepository.findById(id);
             if (optionalUser.isPresent()) {
-                return Response.status(Response.Status.FOUND).entity(optionalUser.get().getEmailId()).build();
+                return Response.status(Response.Status.OK).entity(optionalUser.get().getEmailId()).build();
             } else {
-                return Response.status(Response.Status.BAD_REQUEST).build();
+                return Response.status(Response.Status.OK).entity(ErrorConstants.USER_NOT_FOUND).build();
             }
         } catch (Exception ex) {
             logger.error("Got exception while getting email by user Id :" + ex.toString());
@@ -172,22 +172,22 @@ public class UserServiceImpl implements UserService {
         } else {
             return returnResponseUponException();
         }
-        return Response.status(Response.Status.CREATED).entity(userBinder.bindUserToUserDTO(user)).build();
+        return Response.status(Response.Status.OK).entity(userBinder.bindUserToUserDTO(user)).build();
     }
 
     private List<Response> validateUser(UserDTO userDTO) throws JsonProcessingException {
         List<Response> responseList = new ArrayList<>();
         if (Objects.isNull(userDTO.getEmailId()) && Objects.isNull(userDTO.getContactNumber())) {
-            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.EITHER_MOBILE_OR_EMAIL).build());
+            responseList.add(Response.status(Response.Status.OK).entity(ErrorConstants.EITHER_MOBILE_OR_EMAIL).build());
         }
         if (responseList.isEmpty() && Objects.isNull(userDTO.getFirstName())) {
-            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.INVALID_FIRST_NAME).build());
+            responseList.add(Response.status(Response.Status.OK).entity(ErrorConstants.INVALID_FIRST_NAME).build());
         }
         if (responseList.isEmpty() && Objects.isNull(userDTO.getLastName())) {
-            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.INVALID_LAST_NAME).build());
+            responseList.add(Response.status(Response.Status.OK).entity(ErrorConstants.INVALID_LAST_NAME).build());
         }
         if (responseList.isEmpty() && !validateEmail(userDTO.getEmailId())) {
-            responseList.add(Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.INVALID_EMAIL).build());
+            responseList.add(Response.status(Response.Status.OK).entity(ErrorConstants.INVALID_EMAIL).build());
         }
         return responseList;
     }

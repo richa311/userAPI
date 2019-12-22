@@ -37,7 +37,7 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 		ConfirmationToken token = new ConfirmationToken(user);
 		try {
 			sendUserEmail(user, token);
-			return Response.status(Response.Status.ACCEPTED).build();
+			return Response.status(Response.Status.OK).build();
 		} catch (Exception ex) {
 			logger.error("Exception occurred during saving confirmation token : " + ex.toString());
 			return returnResponseUponException();
@@ -61,13 +61,13 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 		if (null != confirmationTokenObj) {
 			try {
 				activateUser(confirmationTokenObj);
-				return Response.status(Response.Status.ACCEPTED).build();
+				return Response.status(Response.Status.OK).build();
 			} catch (Exception ex) {
 				logger.error("Exception occurred while verifying token for user : " + ex.toString());
 				return returnResponseUponException();
 			}
 		} else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+			return Response.status(Response.Status.OK).entity(ErrorConstants.USER_NOT_FOUND).build();
 		}
 	}
 
