@@ -4,7 +4,8 @@ import javax.inject.Named;
 import javax.ws.rs.core.Response;
 
 import com.bemychef.users.constants.ErrorConstants;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 	@Autowired
 	private ConfirmationTokenDao confirmationTokenDao;
 
-	private static Logger logger = Logger.getLogger(ConfirmUserServiceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(ConfirmUserServiceImpl.class);
 	@Override
 	public Response confirmUser(User user) {
 		ConfirmationToken token = new ConfirmationToken(user);

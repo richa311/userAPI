@@ -1,19 +1,19 @@
 package com.bemychef.users.service.impl;
 
 import com.bemychef.users.binder.UserBinder;
-import com.bemychef.users.constants.Status;
 import com.bemychef.users.constants.ErrorConstants;
+import com.bemychef.users.constants.Status;
 import com.bemychef.users.dao.UserDao;
 import com.bemychef.users.dao.UserRepository;
 import com.bemychef.users.dto.UserDTO;
-import com.bemychef.users.exceptions.ResponseInfo;
 import com.bemychef.users.model.User;
 import com.bemychef.users.security.PasswordEncryption;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.UserService;
 import com.bemychef.users.util.PropertiesUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private PropertiesUtil propertiesUtil;
 
-    private static Logger logger = Logger.getLogger(UserServiceImpl.class);
+    private static Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     @Override
     public Response isUserAlreadyPresent(String emailId) {
