@@ -7,8 +7,17 @@ public class Address {
 
 	private String flatNo;
 	private String addressLine1;
-	private String getAddressLine2;
+	private String addressLine2;
 	private String landmark;
+	private String pinCode;
+
+	public String getPinCode() {
+		return pinCode;
+	}
+
+	public void setPinCode(String pinCode) {
+		this.pinCode = pinCode;
+	}
 
 	public String getFlatNo() {
 		return flatNo;
@@ -26,12 +35,12 @@ public class Address {
 		this.addressLine1 = addressLine1;
 	}
 
-	public String getGetAddressLine2() {
-		return getAddressLine2;
+	public String getAddressLine2() {
+		return addressLine2;
 	}
 
-	public void setGetAddressLine2(String getAddressLine2) {
-		this.getAddressLine2 = getAddressLine2;
+	public void setAddressLine2(String addressLine2) {
+		this.addressLine2 = addressLine2;
 	}
 
 	public String getLandmark() {

@@ -3,14 +3,18 @@ package com.bemychef.users.dto;
 import javax.validation.constraints.NotNull;
 
 import com.bemychef.users.model.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class AddressDTO {
 
 	private Long id;
 	private String flatNo;
 	private String addressLine1;
-	private String getAddressLine2;
+	private String addressLine2;
 	private String landmark;
+	@NotNull
+	private String pinCode;
 	@NotNull
 	private User user;
 
@@ -30,12 +34,12 @@ public class AddressDTO {
 		this.addressLine1 = addressLine1;
 	}
 
-	public String getGetAddressLine2() {
-		return getAddressLine2;
+	public String getAddressLine2() {
+		return addressLine2;
 	}
 
-	public void setGetAddressLine2(String getAddressLine2) {
-		this.getAddressLine2 = getAddressLine2;
+	public void setAddressLine2(String addressLine2) {
+		this.addressLine2 = addressLine2;
 	}
 
 	public String getLandmark() {
@@ -60,5 +64,13 @@ public class AddressDTO {
 
 	public void setUser(User user) {
 		this.user = user;
+	}
+
+	public String getPinCode() {
+		return pinCode;
+	}
+
+	public void setPinCode(String pinCode) {
+		this.pinCode = pinCode;
 	}
 }

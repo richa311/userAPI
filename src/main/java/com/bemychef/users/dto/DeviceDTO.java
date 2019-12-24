@@ -4,7 +4,9 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 import com.bemychef.users.model.User;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DeviceDTO {
 
 	@NotNull
