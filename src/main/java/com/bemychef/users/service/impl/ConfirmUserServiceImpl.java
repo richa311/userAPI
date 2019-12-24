@@ -1,26 +1,22 @@
 package com.bemychef.users.service.impl;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.inject.Named;
 import javax.ws.rs.core.Response;
 
-import org.apache.log4j.Logger;
+import com.bemychef.users.constants.ErrorConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.stereotype.Service;
 
 import com.bemychef.users.dao.ConfirmationTokenDao;
 import com.bemychef.users.dao.ConfirmationTokenRepository;
-import com.bemychef.users.exceptions.ResponseInfo;
 import com.bemychef.users.model.ConfirmationToken;
 import com.bemychef.users.model.User;
 import com.bemychef.users.service.ConfirmUserService;
 import com.bemychef.users.service.EmailService;
 import com.bemychef.users.service.UserService;
-import com.bemychef.users.util.PropertiesUtil;
-import com.bemychef.users.constants.ResponseStatusCodeConstants;
 
 @Service
 @Named(value = "confirmationUserServiceImpl")
@@ -35,13 +31,13 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 	@Autowired
 	private ConfirmationTokenDao confirmationTokenDao;
 
-	private static Logger logger = Logger.getLogger(ConfirmUserServiceImpl.class);
+	private static Logger logger = LoggerFactory.getLogger(ConfirmUserServiceImpl.class);
 	@Override
 	public Response confirmUser(User user) {
 		ConfirmationToken token = new ConfirmationToken(user);
 		try {
 			sendUserEmail(user, token);
-			return Response.status(Response.Status.ACCEPTED).build();
+			return Response.status(Response.Status.OK).build();
 		} catch (Exception ex) {
 			logger.error("Exception occurred during saving confirmation token : " + ex.toString());
 			return returnResponseUponException();
@@ -65,22 +61,18 @@ public class ConfirmUserServiceImpl implements ConfirmUserService {
 		if (null != confirmationTokenObj) {
 			try {
 				activateUser(confirmationTokenObj);
-				return Response.status(Response.Status.ACCEPTED).build();
+				return Response.status(Response.Status.OK).build();
 			} catch (Exception ex) {
 				logger.error("Exception occurred while verifying token for user : " + ex.toString());
 				return returnResponseUponException();
 			}
 		} else {
-			return Response.status(Response.Status.NOT_FOUND).build();
+			return Response.status(Response.Status.OK).entity(ErrorConstants.USER_NOT_FOUND).build();
 		}
 	}
 
 	private Response returnResponseUponException() {
-		Map<String, String> responseMap = new HashMap<>();
-		responseMap.put(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode(),
-				PropertiesUtil.getProperty(ResponseStatusCodeConstants.CONTACT_ADMIN.getStatusCode()));
-		ResponseInfo responseInfo = new ResponseInfo(null, responseMap);
-		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(responseInfo).build();
+		return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(ErrorConstants.CONTACT_ADMIN).build();
 	}
 
 	private Response activateUser(ConfirmationToken confirmationTokenObj) {

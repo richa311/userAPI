@@ -2,6 +2,7 @@ package com.bemychef.users.service;
 
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.stereotype.Service;
 
 import com.bemychef.users.dto.UserDTO;
@@ -22,7 +23,8 @@ public interface UserService {
 	/**
 	 * Updates user's registration details
 	 *
-	 * @param user
+	 * @param userId
+	 * @param userDTO
 	 */
 	Response updateDetails(Long userId, UserDTO userDTO);
 
@@ -43,7 +45,7 @@ public interface UserService {
 	 * gets user's status by userId
 	 * 
 	 * @param userId
-	 * @return
+	 * @return Response
 	 */
 	Response getUserStatus(Long userId);
 
@@ -52,7 +54,7 @@ public interface UserService {
 	 * 
 	 * @param userId
 	 * @param status
-	 * @return
+	 * @return Response
 	 */
 	Response updateStatusByUserId(Long userId, String status);
 
@@ -60,8 +62,21 @@ public interface UserService {
 	 * gets email id by user id
 	 * 
 	 * @param id
+	 * @return Response
 	 */
 	Response getEmailIdByUserId(long id);
 
-	Response registerUser(UserDTO userDTO);
+	/**
+	 *
+	 * @param userDTO
+	 * @return Response
+	 * @throws JsonProcessingException
+	 */
+	Response registerUser(UserDTO userDTO) throws JsonProcessingException;
+
+	/**
+	 * @param status
+	 * @return Response containing count of users
+	 */
+	Response getCountOfUsers(String status);
 }

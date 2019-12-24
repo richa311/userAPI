@@ -6,7 +6,8 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import com.bemychef.users.constants.Status;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bemychef.users.security.PasswordEncryption;
@@ -19,7 +20,7 @@ public class UserDaoImpl implements UserDao {
     @PersistenceContext
     private EntityManager em;
 
-    private static Logger logger = Logger.getLogger(PasswordEncryption.class);
+    private static Logger logger = LoggerFactory.getLogger(PasswordEncryption.class);
 
     @Override
     public User checkIfEmailAlreadyExists(String emailId) {

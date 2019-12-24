@@ -3,13 +3,13 @@ package com.bemychef.users.security;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-
-import org.apache.log4j.Logger;
 import org.apache.tomcat.util.codec.binary.Base64;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PasswordEncryption {
 
-	private static Logger logger = Logger.getLogger(PasswordEncryption.class);
+	private static Logger logger = LoggerFactory.getLogger(PasswordEncryption.class);
 
 	private PasswordEncryption() {
 		// empty implementation

@@ -10,8 +10,10 @@ import javax.validation.constraints.NotNull;
 import com.bemychef.users.model.Address;
 import com.bemychef.users.model.Device;
 import com.bemychef.users.constants.Status;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @NotNull
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
 
 	private long id;

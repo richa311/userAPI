@@ -1,7 +1,9 @@
 package com.bemychef.users.controller;
 
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -37,7 +39,7 @@ public class UserController {
 	 * @return status code
 	 */
 	@PostMapping(path = "/user", consumes = "application/json", produces = "application/json")
-	public Response registerUser(@RequestBody UserDTO userDTO) {
+	public Response registerUser(@RequestBody UserDTO userDTO) throws JsonProcessingException {
 		return userService.registerUser(userDTO);
 	}
 
@@ -113,6 +115,11 @@ public class UserController {
 	@GetMapping(path = "/confirm-account", produces = "application/json")
 	public Response confirmUserAccount(@RequestParam("token") String confirmationToken) {
 		return confirmUserService.verifyUserByToken(confirmationToken);
+	}
+
+	@GetMapping(path = "/users/counts", produces="application/json")
+	public Response getCountOfActiveUsers(@QueryParam(value = "status") String status){
+		return userService.getCountOfUsers(status);
 	}
 
 	// getter setters
